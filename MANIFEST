@@ -4,3 +4,4 @@ MANIFEST
 Makefile.PL
 test.pl
 tmp/.keep_me
+enscript.cfg

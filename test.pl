@@ -54,6 +54,7 @@ foreach my $external ('', 'enscript', 'a2ps') {
 	print "ok " . $ok++ . "\n";
     }
 }
-    
+
+print STDERR "Look at the tmp directory for the created postscript files.\n";
 #MainLoop;
 

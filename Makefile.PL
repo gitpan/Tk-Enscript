@@ -1,12 +1,34 @@
+#!/usr/bin/perl -w
+# -*- perl -*-
+
+#
+# $Id: Makefile.PL,v 1.2 2001/05/05 19:29:45 eserte Exp $
+# Author: Slaven Rezic
+#
+# Copyright (C) 2001 Slaven Rezic. All rights reserved.
+# This program is free software; you can redistribute it and/or
+# modify it under the same terms as Perl itself.
+#
+# Mail: srezic@cpan.org
+# WWW:  http://user.cs.tu-berlin.de/~eserte/
+#
+
 use ExtUtils::MakeMaker;
-# See lib/ExtUtils/MakeMaker.pm for details of how to influence
-# the contents of the Makefile that is written.
+
 WriteMakefile
   (
    'NAME'	  => 'Tk::Enscript',
-   'VERSION_FROM' => 'Enscript.pm', # finds $VERSION
+   'VERSION_FROM' => 'Enscript.pm',
+   'PREREQ_PM'     => {'Tk' => undef},
+
+   'dist'	   => {'POSTOP'=>'-$(CHMOD) 644 $(DISTVNAME).tar$(SUFFIX)'},
+
    'PM'           => {'Enscript.pm'  => '$(INST_LIBDIR)/Enscript.pm',
 		      'enscript.cfg' => '$(INST_LIBDIR)/enscript.cfg',
 		      ,
-		     }
+		     },
+   'clean' => {'FILES' => "tmp/*.ps"},
+
+   'ABSTRACT_FROM' => 'Enscript.pm',
+   'AUTHOR'	   => 'Slaven Rezic (srezic@cpan.org)',
 );

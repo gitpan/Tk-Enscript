@@ -1,7 +1,7 @@
 # -*- perl -*-
 
 #
-# $Id: Enscript.pm,v 1.3 1999/02/14 20:24:15 eserte Exp eserte $
+# $Id: Enscript.pm,v 1.5 2001/05/05 19:24:03 eserte Exp $
 # Author: Slaven Rezic
 #
 # Copyright (C) 1998 Slaven Rezic. All rights reserved.
@@ -23,13 +23,14 @@ use vars qw(%media %postscript_to_x11_font
 
 @ISA = qw(Exporter);
 @EXPORT = qw(enscript);
-$VERSION = '0.03';
+
+$VERSION = sprintf "%d.%02d", q$Revision: 1.5 $ =~ /(\d+)\.(\d+)/;
 
 parse_cfg();
 
 sub enscript {
     my($top, %args) = @_;
-    
+
     my $external = $args{-external};
 
     if (!$args{'-columns'}) {
@@ -52,37 +53,37 @@ sub enscript {
 	    return ext_a2ps(%args);
 	} else {
 	    die "Unknown external program $external";
-	} 
+	}
     }
-	
+
     my $fontname = $args{-font};
     my $output   = $args{-output} || "/tmp/enscript.%d.ps";
     my $filename = $args{-file};
     my $text     = $args{-text};
-    
+
     my $media    = $args{-media} || 'A4';
     die "Unknown media $media" if !exists $media{$media};
     my %media_desc = %{$media{$media}};
-    
+
     my $width  = $args{-width}  || $media_desc{Width};
     my $height = $args{-height} || $media_desc{Height};
-    
+
     my $t = $top->Toplevel;
     my $c = $t->Canvas(-width => $width, -height => $height);
     $t->withdraw;
-    
+
     my($llx, $lly, $urx, $ury) = @{$args{-bbox}} if exists $args{-bbox};
-    
+
     $llx = $args{-llx} || $media_desc{LLX};
     $lly = $args{-lly} || $media_desc{LLY};
     $urx = $args{-urx} || $media_desc{URX};
     $ury = $args{-ury} || $media_desc{URY};
-    
+
     my $uly = $height - $ury;	# XXX unsure
     my $lry = $height - $lly;
-    
+
     my $y = $uly;
-    
+
     my $Font;
     if ($Tk::VERSION >= 800.012) {
 	require Tk::X11Font;
@@ -91,13 +92,13 @@ sub enscript {
 	require Tk::Font;
 	$Font = 'Tk::Font';
     }
-    
+
     my $font = new $Font
       ($t, postscript_to_x11_font($fontname || 'Courier12'));
-    
+
     my $page = 0;
     my $line;
-    
+
     my $ps_output_sub = sub {
 	$c->update;
 	$c->postscript(-file => sprintf($output, $page),
@@ -109,11 +110,11 @@ sub enscript {
 	$page++;
 	$c->delete('all');
     };
-    
+
     if (defined $filename) {
 	$text = _read_file($filename);
     }
-    
+
     my $try_again = 0;
     foreach $line (split(/\n/, $text)) {
 	$line = expand($line);
@@ -124,7 +125,7 @@ sub enscript {
 			);
 	eval {
 	    $i = $c->createText(@text_args,
-				-font => $font, 
+				-font => $font,
 			       );
 	};
 	if (!defined $i) {
@@ -140,10 +141,10 @@ sub enscript {
 	}
 	$try_again = 0;
     }
-    
+
     $ps_output_sub->();
     $c->destroy;
-    
+
     ($output, $page-1);		# gibt Output-Dateiname und Anzahl der Seiten zurück
 }
 
@@ -173,10 +174,10 @@ sub parse_cfg {
     if (!defined $cfg_file) {
 	die "Can't found the configuration file enscript.cfg.";
     }
-    
+
     %media = ();
     %postscript_to_x11_font = ();
-    
+
     open(CFG, $cfg_file)
       or die "Can't open config file <$cfg_file>: $!";
     while(<CFG>) {
@@ -256,7 +257,7 @@ sub ext_a2ps {
     }
     # "-nP" würde ich auch gerne setzen, existiert aber nicht?!
     push @cmd, "-ns", "-nu", "-nL", "-p";
-    
+
     my $tmpfile;
     if (!$args{'-file'}) {
 	$tmpfile = "/tmp/tkenscript-a2ps.$$.txt"; # XXX better solution?
@@ -278,9 +279,9 @@ sub ext_a2ps {
     }
     close OUT;
     $pipe->close;
-    
+
     unlink $tmpfile if defined $tmpfile;
-    
+
     ($args{'-output'}, 1);
 }
 
@@ -327,4 +328,4 @@ it under the same terms as Perl itself.
 enscript(1), a2ps(1), Tk::Canvas(3)
 
 =cut
-    
+
