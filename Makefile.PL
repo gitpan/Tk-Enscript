@@ -2,7 +2,7 @@
 # -*- perl -*-
 
 #
-# $Id: Makefile.PL,v 1.2 2001/05/05 19:29:45 eserte Exp $
+# $Id: Makefile.PL,v 1.1.1.1 2003/10/22 21:56:58 eserte Exp $
 # Author: Slaven Rezic
 #
 # Copyright (C) 2001 Slaven Rezic. All rights reserved.
@@ -19,7 +19,7 @@ WriteMakefile
   (
    'NAME'	  => 'Tk::Enscript',
    'VERSION_FROM' => 'Enscript.pm',
-   'PREREQ_PM'     => {'Tk' => undef},
+   'PREREQ_PM'     => {'Tk' => 400},
 
    'dist'	   => {'POSTOP'=>'-$(CHMOD) 644 $(DISTVNAME).tar$(SUFFIX)'},
 
@@ -32,3 +32,18 @@ WriteMakefile
    'ABSTRACT_FROM' => 'Enscript.pm',
    'AUTHOR'	   => 'Slaven Rezic (srezic@cpan.org)',
 );
+
+sub MY::postamble {
+    my $postamble = "";
+
+    if (defined $ENV{USER} && $ENV{USER} eq 'eserte' && $^O =~ /bsd/i && -f "../../perl.release.mk") {
+	$postamble .= <<'EOF';
+
+.include "../../perl.release.mk"
+.include "../../perl.cvs.mk"
+
+EOF
+    }
+
+    $postamble;
+}

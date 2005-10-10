@@ -1,15 +1,15 @@
 # -*- perl -*-
 
 #
-# $Id: Enscript.pm,v 1.5 2001/05/05 19:24:03 eserte Exp $
+# $Id: Enscript.pm,v 1.8 2005/10/10 20:21:10 eserte Exp $
 # Author: Slaven Rezic
 #
 # Copyright (C) 1998 Slaven Rezic. All rights reserved.
 # This program is free software; you can redistribute it and/or
 # modify it under the same terms as Perl itself.
 #
-# Mail: eserte@cs.tu-berlin.de
-# WWW:  http://user.cs.tu-berlin.de/~eserte/
+# Mail: slaven@rezic.de
+# WWW:  http://www.sourceforge.net/projects/srezic
 #
 
 package Tk::Enscript;
@@ -24,7 +24,7 @@ use vars qw(%media %postscript_to_x11_font
 @ISA = qw(Exporter);
 @EXPORT = qw(enscript);
 
-$VERSION = sprintf "%d.%02d", q$Revision: 1.5 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%02d", q$Revision: 1.8 $ =~ /(\d+)\.(\d+)/;
 
 parse_cfg();
 
@@ -84,17 +84,7 @@ sub enscript {
 
     my $y = $uly;
 
-    my $Font;
-    if ($Tk::VERSION >= 800.012) {
-	require Tk::X11Font;
-	$Font = 'Tk::X11Font';
-    } else {
-	require Tk::Font;
-	$Font = 'Tk::Font';
-    }
-
-    my $font = new $Font
-      ($t, postscript_to_x11_font($fontname || 'Courier12'));
+    my $font = x11_font_to_tk_font($t, postscript_to_x11_font($fontname || 'Courier12'));
 
     my $page = 0;
     my $line;
@@ -128,8 +118,9 @@ sub enscript {
 				-font => $font,
 			       );
 	};
+	warn $@ if $@;
 	if (!defined $i) {
-	    warn "Can't get $font, fallback to default font.\n";
+	    warn "Can't get font <$font>, fallback to default font.\n";
 	    $i = $c->createText(@text_args);
 	}
 	$y = ($c->bbox($i))[3];
@@ -193,7 +184,7 @@ sub parse_cfg {
 	} elsif (/^\s*FontMap:\s*(\S+)\s+(.*)/) {
 	    $postscript_to_x11_font{$1} = $2;
 	} else {
-	    die "Can't parse $_";
+	    #warn "Can't parse $_";
 	}
     }
     close CFG;
@@ -213,6 +204,23 @@ sub postscript_to_x11_font {
     }
     $x11font = sprintf($x11font_fmt, $size*10);
     $x11font;
+}
+
+sub x11_font_to_tk_font {
+    my($t, $x11font) = @_;
+
+    my $Font;
+    if ($Tk::VERSION >= 800.012) {
+	require Tk::X11Font;
+	$Font = 'Tk::X11Font';
+    } else {
+	require Tk::Font;
+	$Font = 'Tk::Font';
+    }
+
+    my $font = new $Font($t, $x11font);
+
+    $font;
 }
 
 sub ext_enscript {
@@ -245,18 +253,24 @@ sub ext_enscript {
 
 sub ext_a2ps {
     my(%args) = @_;
-    my @cmd = ("a2ps", "-8");
+
+    die "Sorry, a2ps is not supported anymore\n";
+
+    my @cmd = ("a2ps", #"-8",
+	       "--output=-");
     if ($args{'-columns'} =~ /^[12]$/) {
-	push @cmd, "-" . $args{'-columns'};
+	push @cmd, "--columns=" . $args{'-columns'};
     }
     if ($args{'-font'} and $args{'-font'} =~ /(\d+)$/) {
-	push @cmd, "-F" . $1;
+	push @cmd, "--font-size=". $1;
     }
     if ($args{'-header'}) {
-	push @cmd, "-H", $args{'-header'};
+	push @cmd, "--header=".$args{'-header'};
+    } else {
+	push @cmd, "--no-header";
     }
     # "-nP" würde ich auch gerne setzen, existiert aber nicht?!
-    push @cmd, "-ns", "-nu", "-nL", "-p";
+#XXX?    push @cmd, "-ns", "-nu", "-nL";
 
     my $tmpfile;
     if (!$args{'-file'}) {
@@ -268,7 +282,6 @@ sub ext_a2ps {
 	$args{'-file'} = $tmpfile;
     }
     push @cmd, $args{'-file'};
-
     require IO::Pipe;
     my $pipe = IO::Pipe->new;
     print STDERR "Cmd: " . join(" ", @cmd) . "\n" if $args{-verbose};
@@ -303,13 +316,13 @@ Tk::Enscript - a text-to-postscript converter using Tk::Canvas
 
 =head1 SYNOPSIS
 
-use Tk::Enscript;
+    use Tk::Enscript;
 
-enscript($top,
-	 -text   => $text,
-	 -media  => 'A4',
-	 -output => "/tmp/bla.%d.ps",
-	);
+    enscript($top,
+	     -text   => $text,
+	     -media  => 'A4',
+	     -output => "/tmp/bla.%d.ps",
+    );
 
 =head1 DESCRIPTION
 

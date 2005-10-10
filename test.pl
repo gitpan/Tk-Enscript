@@ -6,7 +6,11 @@
 # Change 1..1 below to 1..last_test_to_print .
 # (It may become useful if the test is moved to ./t subdirectory.)
 
+BEGIN { $^W = 1 }
+
 use Tk::Enscript;
+use strict;
+use vars qw($ok);
 
 print "1..50\n";
 
@@ -22,7 +26,7 @@ use FindBin;
 use Tk;
 my $top = new MainWindow;
 
-$tmpdir = "$FindBin::RealBin/tmp";
+my $tmpdir = "$FindBin::RealBin/tmp";
 
 $ok = 2;
 
@@ -36,8 +40,27 @@ print "not " if !-f "$tmpdir/test-00.ps";
 print "ok " . $ok++ . "\n";
 
 foreach my $external ('', 'enscript', 'a2ps') {
+    if ($external ne '') {
+	if (!Tk::Enscript::_is_in_path($external)) {
+	    # skip non-existing external program
+	    print "ok " . $ok++ . " # skip: no $external installed\n"
+		for (1 .. keys %Tk::Enscript::postscript_to_x11_font);
+	    next;
+	} elsif ($external eq 'a2ps') {
+	    # skip a2ps
+	    print "ok " . $ok++ . " # skip: a2ps not supported anymore\n"
+		for (1 .. keys %Tk::Enscript::postscript_to_x11_font);
+	    next;
+	}
+    }
     for my $psname (keys %Tk::Enscript::postscript_to_x11_font) {
-	next if !defined $Tk::Enscript::postscript_to_x11_font{$psname};
+	my $x11font = Tk::Enscript::postscript_to_x11_font($psname);
+	my $font = Tk::Enscript::x11_font_to_tk_font($top, $x11font);
+	{ local $^W; $font = "$font" }
+	if (!defined $font || $font eq '') {
+	    print "ok " . $ok++ . " # skip: no X11 font for $psname found\n";
+	    next;
+	}
 	my $psname1 = ucfirst($psname);
 	$psname1 =~ s/-([a-z])/-\U$1/g;
 	my $filebase = "$tmpdir/test-$psname-$external";
