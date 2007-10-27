@@ -1,14 +1,14 @@
 # -*- perl -*-
 
 #
-# $Id: Enscript.pm,v 1.8 2005/10/10 20:21:10 eserte Exp $
+# $Id: Enscript.pm,v 1.9 2007/10/27 12:56:24 eserte Exp $
 # Author: Slaven Rezic
 #
 # Copyright (C) 1998 Slaven Rezic. All rights reserved.
 # This program is free software; you can redistribute it and/or
 # modify it under the same terms as Perl itself.
 #
-# Mail: slaven@rezic.de
+# Mail: srezic@cpan.org
 # WWW:  http://www.sourceforge.net/projects/srezic
 #
 
@@ -24,7 +24,7 @@ use vars qw(%media %postscript_to_x11_font
 @ISA = qw(Exporter);
 @EXPORT = qw(enscript);
 
-$VERSION = sprintf "%d.%02d", q$Revision: 1.8 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%02d", q$Revision: 1.9 $ =~ /(\d+)\.(\d+)/;
 
 parse_cfg();
 
@@ -328,7 +328,7 @@ Tk::Enscript - a text-to-postscript converter using Tk::Canvas
 
 =head1 AUTHOR
 
-Slaven Rezic <eserte@cs.tu-berlin.de>
+Slaven Rezic <srezic@cpan.org>
 
 =head1 COPYRIGHT
 
@@ -338,7 +338,7 @@ it under the same terms as Perl itself.
 
 =head1 SEE ALSO
 
-enscript(1), a2ps(1), Tk::Canvas(3)
+L<enscript(1)>, L<a2ps(1)>, L<Tk::Canvas>
 
 =cut
 

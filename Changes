@@ -1,5 +1,13 @@
 Revision history for Perl extension Tk::Enscript.
 
+1.09
+	- workaround in test file for older perls/Tks
+
+1.08
+	- a2ps not supported anymore
+	- Pod fixes
+	- test script more robust
+
 1.05
 	- ready for CPAN
 

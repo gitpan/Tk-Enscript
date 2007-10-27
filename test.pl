@@ -56,7 +56,11 @@ foreach my $external ('', 'enscript', 'a2ps') {
     for my $psname (keys %Tk::Enscript::postscript_to_x11_font) {
 	my $x11font = Tk::Enscript::postscript_to_x11_font($psname);
 	my $font = Tk::Enscript::x11_font_to_tk_font($top, $x11font);
-	{ local $^W; $font = "$font" }
+	if (UNIVERSAL::can($font, "as_string")) { # for Tk::X11Font
+	    $font = $font->as_string;
+	} else {
+	    local $^W; $font = "$font";
+	}
 	if (!defined $font || $font eq '') {
 	    print "ok " . $ok++ . " # skip: no X11 font for $psname found\n";
 	    next;
