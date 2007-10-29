@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:                Tk-Enscript
-version:             1.09
+version:             1.10
 abstract:            a text-to-postscript converter using Tk::Canvas
 license:             ~
 generated_by:        ExtUtils::MakeMaker version 6.36

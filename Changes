@@ -1,5 +1,10 @@
 Revision history for Perl extension Tk::Enscript.
 
+1.10
+	- make sure supplied enscript.cfg is always read
+	  (but a user-defined enscript.cfg may still override the
+	  defaults) 
+
 1.09
 	- workaround in test file for older perls/Tks
 
